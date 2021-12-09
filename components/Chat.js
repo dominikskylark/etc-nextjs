@@ -1,15 +1,16 @@
 import React from "react";
 import Pusher from "pusher-js";
-import styles from "../../styles/Chat.module.css";
-import { AppContext } from "../../pages/_app";
+import styles from "../styles/Chat.module.css";
+import { AppContext, getStaticProps } from "../pages/_app";
 
 import { Paperclip, Send } from "react-feather";
+import { UserInfo } from "../pages/lobby";
 
 export default ({ type, passedId }) => {
-  const context = React.useContext(AppContext);
+  const eventOptions = React.useContext(AppContext);
+  const userDetails = React.useContext(UserInfo);
   const [newMessage, setNewMessage] = React.useState("");
   const [messages, setMessages] = React.useState([]);
-  const [usersOnline, setUsersOnline] = React.useState(0);
   const [whoIsOnline, setWhoIsOnline] = React.useState([]);
   //Components
   const SingleMessage = ({ message }) => {
@@ -17,18 +18,18 @@ export default ({ type, passedId }) => {
     return (
       <div
         className={
-          "row d-flex "
-          // (message.who === state.theme.userDetails.id
-          //   ? "justify-content-end"
-          //   : "justify-content-start")
+          "row d-flex " +
+          (message.who === userDetails.id
+            ? "justify-content-end"
+            : "justify-content-start")
         }
       >
         <div
           className={
-            "mt-3 message p-3 user-message"
-            // (message.who === state.theme.userDetails.id
-            //   ? "user-message"
-            //   : "helpdesk-message")
+            "mt-3 message p-3 " +
+            (message.who === userDetails.id
+              ? "user-message"
+              : "helpdesk-message")
           }
         >
           {message.content}
@@ -54,15 +55,12 @@ export default ({ type, passedId }) => {
               width: 75%;
             }
             .user-message {
-              background-color: ${context.states.eventOptions
-                .primary_button_colour};
-              color: ${context.states.eventOptions.primary_button_text_colour};
+              background-color: ${eventOptions.options.primary_button_colour};
+              color: ${eventOptions.options.primary_button_text_colour};
             }
             .helpdesk-message {
-              background-color: ${context.states.eventOptions
-                .secondary_button_colour};
-              color: ${context.states.eventOptions
-                .secondary_button_text_colour};
+              background-color: ${eventOptions.options.secondary_button_colour};
+              color: ${eventOptions.secondary_button_text_colour};
             }
 
             .message-data {
@@ -92,13 +90,13 @@ export default ({ type, passedId }) => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            channel: "presence-pedaly-wszystkie",
+            channel: `presence-${eventOptions.code}-${type}-${passedId}`,
             action: "message",
             payload: {
               content: newMessage,
-              who: 666,
+              who: userDetails.id,
               time: Date.now(),
-              name: "Julie the filing clark",
+              name: userDetails.details.first_name,
             },
           }),
         }
@@ -114,52 +112,52 @@ export default ({ type, passedId }) => {
       authEndpoint: "http://localhost:3001/api/pusher/auth",
       auth: {
         params: {
-          username: "Marzanka",
+          username: userDetails.details.first_name,
           photo: "all",
-          user_id: 666,
+          user_id: userDetails.id,
         },
       },
     });
 
     const channel = pusher.subscribe(
-      "presence-pedaly-wszystkie"
+      `presence-${eventOptions.code}-${type}-${passedId}`
       // "presence-" + state.theme.event_uid + "-" + type + "-" + passedId
     );
     channel.bind("pusher:subscription_succeeded", (members) => {
-      setUsersOnline(members.count);
-      console.log(members);
-      const all = [];
-      for (const prop in members.members) {
-        all.push({
-          username: members.members[prop].username,
-          photo: members.members[prop].photo,
-        });
-      }
-      console.log("When user logs in", all);
-      setWhoIsOnline(all);
-      console.log(whoIsOnline);
+      // setUsersOnline(members.count);
+      // console.log(members);
+      // const all = [];
+      // for (const prop in members.members) {
+      //   all.push({
+      //     username: members.members[prop].username,
+      //     photo: members.members[prop].photo,
+      //   });
+      // }
+      // console.log("When user logs in", all);
+      // setWhoIsOnline(all);
+      // console.log(whoIsOnline);
     });
 
     channel.bind("pusher:member_added", async function (member) {
-      setUsersOnline(channel.members.count);
-      // setWhoIsOnline((prevState) => [
-      //   ...prevState,
-      //   { username: member.info.username, photo: member.info.photo },
-      // ]);
-      let all = whoIsOnline;
-      all.push({
-        username: member.info.username,
-        photo: member.info.photo,
-      });
-      console.log("all", all);
-      setWhoIsOnline(all);
-      console.log("whoonline", whoIsOnline);
+      // setUsersOnline(channel.members.count);
+      // // setWhoIsOnline((prevState) => [
+      // //   ...prevState,
+      // //   { username: member.info.username, photo: member.info.photo },
+      // // ]);
+      // let all = whoIsOnline;
+      // all.push({
+      //   username: member.info.username,
+      //   photo: member.info.photo,
+      // });
+      // console.log("all", all);
+      // setWhoIsOnline(all);
+      // console.log("whoonline", whoIsOnline);
     });
 
     channel.bind("pusher:member_removed", (member) => {
-      setUsersOnline(channel.members.count);
-      let all = whoIsOnline;
-      all.find((user) => user.id);
+      // setUsersOnline(channel.members.count);
+      // let all = whoIsOnline;
+      // all.find((user) => user.id);
     });
     channel.bind("message", async function (data) {
       console.log(data);
@@ -177,7 +175,7 @@ export default ({ type, passedId }) => {
           borderTopLeftRadius: "25px",
           overflow: "scroll",
           maxHeight: "400px",
-          backgroundColor: context.states.eventOptions.primary_colour,
+          backgroundColor: eventOptions.options.primary_colour,
         }}
         id="chatWindow"
       >
@@ -243,7 +241,7 @@ export default ({ type, passedId }) => {
       <style jsx>
         {`
           .input-window {
-            background-color: ${context.states.eventOptions.secondary_colour};
+            background-color: ${eventOptions.options.secondary_colour};
           }
         `}
       </style>

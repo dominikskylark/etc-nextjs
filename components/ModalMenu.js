@@ -1,10 +1,10 @@
 import React from "react";
-import { AppContext } from "../pages/_app";
+import { UserLocation } from "../pages/_app";
 
 const ModalMenu = () => {
-  const { states, actions } = React.useContext(AppContext);
+  const userLocation = React.useContext(UserLocation);
   function switchProvider() {
-    switch (states.whereUser) {
+    switch (userLocation.userLocation) {
       case "networking":
       case "profile":
         return (
@@ -12,11 +12,9 @@ const ModalMenu = () => {
             <li className="nav-item">
               <a
                 className={
-                  states.whereUser === "profile"
-                    ? "nav-link active"
-                    : "nav-link"
+                  userLocation === "profile" ? "nav-link active" : "nav-link"
                 }
-                onClick={() => actions.whereIsUser("profile")}
+                onClick={() => userLocation.changeUserLocation("profile")}
               >
                 Profile
               </a>
@@ -24,31 +22,33 @@ const ModalMenu = () => {
             <li className="nav-item">
               <a
                 className={
-                  states.whereUser === "networking"
-                    ? "nav-link active"
-                    : "nav-link"
+                  userLocation === "networking" ? "nav-link active" : "nav-link"
                 }
-                onClick={() => actions.whereIsUser("networking")}
+                onClick={() => userLocation.changeUserLocation("networking")}
               >
                 Connections
               </a>
             </li>
             <li className="nav-item">
-              <a className="nav-link" href="#">
+              <a
+                className="nav-link"
+                onClick={() => userLocation.changeUserLocation("global-chat")}
+              >
                 Chat
               </a>
             </li>
           </>
         );
-      case "help" || "help-videos":
+      case "help":
+      case "help-videos":
         return (
           <>
             <li className="nav-item">
               <a
                 className={
-                  states.whereUser === "help" ? "nav-link active" : "nav-link"
+                  userLocation === "help" ? "nav-link active" : "nav-link"
                 }
-                onClick={() => actions.whereIsUser("help")}
+                onClick={() => userLocation.changeUserLocation("help")}
               >
                 FAQ
               </a>
@@ -56,11 +56,11 @@ const ModalMenu = () => {
             <li className="nav-item">
               <a
                 className={
-                  states.whereUser === "help-videos"
+                  userLocation === "help-videos"
                     ? "nav-link active"
                     : "nav-link"
                 }
-                onClick={() => actions.whereIsUser("help-videos")}
+                onClick={() => userLocation.changeUserLocation("help-videos")}
               >
                 Videos
               </a>
@@ -68,11 +68,9 @@ const ModalMenu = () => {
             <li className="nav-item">
               <a
                 className={
-                  states.whereUser === "help-chat"
-                    ? "nav-link active"
-                    : "nav-link"
+                  userLocation === "help-chat" ? "nav-link active" : "nav-link"
                 }
-                onClick={() => actions.whereIsUser("help-chat")}
+                onClick={() => userLocation.changeUserLocation("help-chat")}
               >
                 Help Chat
               </a>

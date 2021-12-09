@@ -2,13 +2,13 @@ import Panelist from "./Panelist";
 import React from "react";
 import { AppContext } from "../../pages/_app";
 export default ({ data, day }) => {
-  const context = React.useContext(AppContext);
+  const eventOptions = React.useContext(AppContext);
   const [dayDate, setDayDate] = React.useState(
-    new Date(context.states.eventOptions.start_date)
+    new Date(eventOptions.options.start_date)
   );
   const today = new Date();
   const todayISO = new Date().toISOString();
-  const fitchka = new Date(context.states.eventOptions.start_date);
+  const fitchka = new Date(eventOptions.options.start_date);
 
   console.log(dayDate);
   function convertTime12To24(time) {
@@ -43,11 +43,45 @@ export default ({ data, day }) => {
     parseInt(convertTime12To24(data[`start_time_day_${day}`]).substring(3, 5)),
     parseInt("0")
   );
+
+  //Show the right value on the button
+  function setButtonContent() {
+    // <Switch>
+    //         <span
+    //           when={
+    //             todayISO === dayDate &&
+    //             today >= meetingStart &&
+    //             today <= meetingEnd
+    //           }
+    //         >
+    //           Join
+    //         </span>
+    //         <span
+    //           when={
+    //             todayISO > dayDate ||
+    //             (todayISO === dayDate && today >= meetingEnd)
+    //           }
+    //         >
+    //           Meeting ended
+    //         </span>
+    //         <span>Meeting not started</span>
+    //         //TODO: Add on Demand watch
+    //       </Switch>
+    switch (null) {
+      case todayISO === dayDate && today >= meetingStart && today <= meetingEnd:
+        return "Join";
+      case todayISO > dayDate:
+      case todayISO === dayDate && today >= meetingEnd:
+        return "Meeting ended";
+      default:
+        return "Meeting not started";
+    }
+  }
   React.useEffect(() => {
     console.log("rebuilding");
     switch (day) {
       case "one":
-        setDayDate(context.states.eventOptions.start_date);
+        setDayDate(eventOptions.options.start_date);
         break;
       case "two":
         const adjusted1 = fitchka.setDate(fitchka.getDate() + 1);
@@ -71,10 +105,10 @@ export default ({ data, day }) => {
       <div
         className="col-md-2 col-xs-12 order-2 order-md-1 d-flex flex-column justify-content-center align-items-center p-2"
         style={{
-          backgroundColor: context.states.eventOptions.primary_button_colour,
+          backgroundColor: eventOptions.options.primary_button_colour,
           borderTopLeftRadius: "25px",
           borderBottomLeftRadius: "25px",
-          color: context.states.eventOptions.primary_button_text_colour,
+          color: eventOptions.options.primary_button_text_colour,
         }}
       >
         <h4>Start time</h4>
@@ -84,8 +118,8 @@ export default ({ data, day }) => {
           ? parseInt(timeDifference / 60) + " hours"
           : timeDifference + " minutes"}
       </div>
-      <div className="col-md-4 col-xs-12 order-1 order-md-2">
-        <h5 className="sessions-title">{data[`title_day_${day}`]}</h5>
+      <div className="col-md-4 col-xs-12 order-1 order-md-2 p-3">
+        <h1 className="sessions-title">{data[`title_day_${day}`]}</h1>
       </div>
       <div className="col-md-4 order-3">
         {data[`panelists_day_${day}`]
@@ -98,7 +132,7 @@ export default ({ data, day }) => {
             })
           : null}
       </div>
-      <div className="col-md-2 order-4">
+      <div className="col-md-2 order-4 d-flex justify-content-center align-items-center">
         <button
           className="btn btn-lg button-primary"
           onClick={() => actions.theme.setWhereUser("webinar")}
@@ -108,28 +142,7 @@ export default ({ data, day }) => {
               : true
           }
         >
-          <span>Pedal</span>
-          {/* <Switch>
-            <span
-              when={
-                todayISO === dayDate &&
-                today >= meetingStart &&
-                today <= meetingEnd
-              }
-            >
-              Join
-            </span>
-            <span
-              when={
-                todayISO > dayDate ||
-                (todayISO === dayDate && today >= meetingEnd)
-              }
-            >
-              Meeting ended
-            </span>
-            <span>Meeting not started</span>
-            //TODO: Add on Demand watch
-          </Switch> */}
+          <span>{setButtonContent()}</span>
         </button>
       </div>
       <style jsx>
@@ -144,10 +157,10 @@ export default ({ data, day }) => {
           h4,
           h5,
           h6 {
-            color: ${context.states.eventOptions.primary_button_text_colour};
+            color: ${eventOptions.options.primary_button_text_colour};
           }
-          .session-title {
-            color: ${context.states.eventOptions.secondary_button_text_colour};
+          .sessions-title {
+            color: ${eventOptions.options.secondary_button_text_colour};
           }
         `}
       </style>

@@ -6,23 +6,20 @@ import { config } from "../config";
 // import { AppContext } from "../context/appContext";
 
 export const AppContext = React.createContext();
+export const UserLocation = React.createContext();
 
 function MyApp({ Component, pageProps }) {
-  const [whereIsUser, setWhereIsUser] = React.useState();
+  const [userLocation, setUserLocation] = React.useState();
   const [eventOptions, setEventOptions] = React.useState();
 
-  const state = {
-    states: {
-      pedal: "Pedaly",
-      whereUser: whereIsUser,
-      eventOptions,
-    },
-    actions: {
-      whereIsUser: (value) => setWhereIsUser(value),
-      setOptions: (value) => (state.states.eventOptions = value),
-    },
+  const userLocationState = {
+    userLocation,
+    changeUserLocation: (value) => setUserLocation(value),
   };
-
+  const fullEventOptions = {
+    code: btoa(config.url),
+    options: eventOptions,
+  };
   React.useEffect(() => {
     async function getEventDetails() {
       let res = await fetch(config.url + "wp-json/acf/v3/options/options");
@@ -35,8 +32,10 @@ function MyApp({ Component, pageProps }) {
   }, []);
   return (
     <Layout>
-      <AppContext.Provider value={state}>
-        <Component {...pageProps} />
+      <AppContext.Provider value={fullEventOptions}>
+        <UserLocation.Provider value={userLocationState}>
+          <Component {...pageProps} />
+        </UserLocation.Provider>
       </AppContext.Provider>
     </Layout>
   );

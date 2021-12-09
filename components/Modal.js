@@ -1,14 +1,14 @@
 import styles from "../styles/Modal.module.css";
 import React from "react";
-import { AppContext } from "../pages/_app";
+import { AppContext, UserLocation } from "../pages/_app";
 // import AnimateHeight from "react-animate-height";
 //Modals
-// import Profile from "./modals/Profile";
-// import ProfileUpdate from "./modals/ProfileUpdate";
+import Profile from "./modals/Profile";
+import ProfileUpdate from "./modals/ProfileUpdate";
 import Networking from "./modals/Networking";
-import Chat from "./modals/Chat";
 import Agenda from "./modals/Agenda";
-// import Help from "./modals/Help";
+import Help from "./modals/Help";
+import ModalMenu from "./ModalMenu";
 // import Webinar from "./modals/Webinar";
 //Loading
 // import Loading from "./Loading";
@@ -19,16 +19,21 @@ export default function Modal() {
   function renderSwitch(param) {
     switch (param) {
       case "networking":
+      case "global-chat":
         return <Networking />;
       case "help":
-        return <Chat />;
+        return <Help />;
       case "agenda":
         return <Agenda />;
+      case "profile":
+        return <Profile />;
+      case "profile-update":
+        return <ProfileUpdate />;
       default:
         return "lobbay";
     }
   }
-  const where = React.useContext(AppContext);
+  const userLocation = React.useContext(UserLocation);
 
   return (
     <div className={styles["modal-wrapper"]}>
@@ -39,7 +44,7 @@ export default function Modal() {
           padding: "2rem",
         }}
       >
-        <div className="row">{renderSwitch(where.states.whereUser)}</div>
+        <div className="row">{renderSwitch(userLocation.userLocation)}</div>
       </div>
     </div>
   );
