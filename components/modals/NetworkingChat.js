@@ -6,7 +6,10 @@ import defaultPhoto from "../../public/assets/icons/default-profile.png";
 import Chat from "../Chat";
 
 export default ({ partnerId, userInfo }) => {
-  const chatId = partnerId > 851 ? `851-${partnerId}` : `${partnerId}-851`;
+  const chatId =
+    partnerId > userInfo.id
+      ? `${userInfo.id}-${partnerId}`
+      : `${partnerId}-${userInfo.id}`;
   const [partnerDetails, setPartnerDetails] = React.useState();
 
   React.useEffect(() => {
@@ -26,11 +29,13 @@ export default ({ partnerId, userInfo }) => {
     return (
       <div className="row">
         <div className="col-xl-4">
-          <div className={styles["modal-background"]}>
+          <div>
             You're chatting with...
             <div>
               <img
                 src={partnerDetails.photo ? partnerDetails.photo : defaultPhoto}
+                style={{ borderRadius: "50%", aspectRatio: "1/1" }}
+                className="img-fluid"
               />
               <h2>
                 {partnerDetails.first_name + " " + partnerDetails.last_name}

@@ -1,5 +1,5 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
-import { config } from "../../../config";
+import { config } from "../../../../config";
 import { withIronSessionApiRoute } from "iron-session/next";
 
 export default withIronSessionApiRoute(
@@ -11,11 +11,6 @@ export default withIronSessionApiRoute(
       });
     }
     let photo_url = "";
-    const base_64 = btoa(`dominikzaczek:` + process.env.APP_PASSWORD);
-    const parsed = JSON.parse(req.body);
-    for (const key of req.body.formData.entries()) {
-      console.log(key[0] + ", " + key[1]);
-    }
 
     let mediaResponse = await fetch(config.url + "wp-json/wp/v2/media", {
       method: "POST",
@@ -39,7 +34,7 @@ export default withIronSessionApiRoute(
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            acf: {
+            fields: {
               photo: photo_url,
             },
           }),

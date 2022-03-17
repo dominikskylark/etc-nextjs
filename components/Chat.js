@@ -6,6 +6,8 @@ import { AppContext, getStaticProps } from "../pages/_app";
 import { Paperclip, Send } from "react-feather";
 import { UserInfo } from "../pages/lobby";
 
+import { config } from "../config";
+
 export default ({ type, passedId }) => {
   const eventOptions = React.useContext(AppContext);
   const userDetails = React.useContext(UserInfo);
@@ -82,25 +84,26 @@ export default ({ type, passedId }) => {
   const handleNewMessage = async (e) => {
     e.preventDefault();
     if (newMessage) {
-      let result = await fetch(
-        "https://0d50dx7yvg.execute-api.eu-west-2.amazonaws.com/dev/pushertest",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
+      let result = await fetch("./api/pusher", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          channel: `presence-${eventOptions.code}-${type}-${passedId}`,
+          action: "message",
+          payload: {
+            content: newMessage,
+            who: userDetails.id,
+            time: Date.now(),
+            name: userDetails.details.first_name,
           },
-          body: JSON.stringify({
-            channel: `presence-${eventOptions.code}-${type}-${passedId}`,
-            action: "message",
-            payload: {
-              content: newMessage,
-              who: userDetails.id,
-              time: Date.now(),
-              name: userDetails.details.first_name,
-            },
-          }),
-        }
-      );
+        }),
+      });
+      if (result.ok) {
+        let felka = await result.json();
+        console.log(felka);
+      }
       setNewMessage("");
     }
   };
@@ -109,7 +112,7 @@ export default ({ type, passedId }) => {
 
     const pusher = new Pusher("8fd548bef3f79484a0ae", {
       cluster: "eu",
-      authEndpoint: "http://localhost:3001/api/pusher/auth",
+      authEndpoint: "./api/pusher/auth",
       auth: {
         params: {
           username: userDetails.details.first_name,
@@ -161,24 +164,26 @@ export default ({ type, passedId }) => {
     });
     channel.bind("message", async function (data) {
       console.log(data);
-      setMessages((messages) => [...messages, data]);
+      setMessages((messages) => [...messages, data.payload]);
     });
     console.log("state messages", messages);
   }, []);
 
   return (
-    <div className="animate__animated animate__fadeIn">
+    <div
+      className="animate__animated animate__fadeIn"
+      style={{ borderRadius: "25px" }}
+    >
       <div
         className="col-xs-12 p-4 dark-bg-user"
         style={{
-          borderTopRightRadius: "25px",
-          borderTopLeftRadius: "25px",
           overflow: "scroll",
           maxHeight: "400px",
           backgroundColor: eventOptions.options.primary_colour,
         }}
         id="chatWindow"
       >
+        {passedId + "-" + type}
         {messages.length > 0
           ? messages.map((message) => {
               return (
@@ -190,13 +195,7 @@ export default ({ type, passedId }) => {
             })
           : "No messages yet"}
       </div>
-      <div
-        className="col-12 input-window p-3 "
-        style={{
-          borderBottomLeftRadius: "25px",
-          borderBottomRightRadius: "25px",
-        }}
-      >
+      <div className="col-12 input-window p-3 " style={{}}>
         <form
           onSubmit={handleNewMessage}
           className="d-flex justify-content-evenly align-items-center"

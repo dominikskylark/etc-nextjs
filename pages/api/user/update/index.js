@@ -10,14 +10,17 @@ export default withIronSessionApiRoute(
         message: "You need to check in to update your data",
       });
     }
+
     let result = await fetch(
       config.url + "wp-json/acf/v3/registrations/" + req.session.user.id,
       {
         method: "POST",
-
-        Authorization:
-          "Basic ZG9taW5pa3phY3plazpvU2RzIDZZRFIgSDZGTCBqUzJFIEVkSXggMFFJYw==",
-        body: JSON.stringify(req.body),
+        headers: {
+          Authorization:
+            "Basic ZG9taW5pa3phY3plazpvU2RzIDZZRFIgSDZGTCBqUzJFIEVkSXggMFFJYw==",
+          "Content-Type": "application/json",
+        },
+        body: req.body,
       }
     );
     if (result.ok) {

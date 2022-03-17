@@ -29,19 +29,47 @@ export default () => {
     const formData = new FormData();
     formData.append("file", e.target.files[0]);
     console.log("Current file: ", file);
-    for (const key of formData.entries()) {
-      console.log(key[0] + ", " + key[1]);
-    }
-    let res = await fetch(config.localUrl + "/api/user/update", {
+    let photo_url = "";
+    let mediaResponse = await fetch(config.url + "wp-json/wp/v2/media", {
       method: "POST",
-      body: JSON.stringify({
-        type: "photo",
-        formData,
-      }),
+      headers: {
+        Authorization:
+          "Basic ZG9taW5pa3phY3plazpvU2RzIDZZRFIgSDZGTCBqUzJFIEVkSXggMFFJYw==",
+      },
+      body: formData,
     });
-    if (res.ok) {
-      let reska = await res.json();
-      console.log(reska);
+    let json = await mediaResponse.json();
+    console.log(json);
+    if (mediaResponse.ok) {
+      photo_url = json.source_url;
+      const passBody = {
+        fields: {
+          photo: photo_url,
+        },
+      };
+      console.log("Photko: ", photo_url);
+      let amendResponse = await fetch(
+        config.url + "wp-json/acf/v3/registrations/851",
+        {
+          method: "POST",
+          headers: {
+            Authorization:
+              "Basic ZG9taW5pa3phY3plazpvU2RzIDZZRFIgSDZGTCBqUzJFIEVkSXggMFFJYw==",
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(passBody),
+        }
+      );
+      console.log(passBody);
+      if (amendResponse.ok) {
+        const jsonek = await amendResponse.json();
+        console.log(jsonek);
+      } else {
+        let jsonka = await amendResponse.json();
+        console.log(jsonka);
+      }
+    } else {
+      console.log("sth is fucked up");
     }
   }
 
@@ -64,7 +92,8 @@ export default () => {
       console.log(profile);
       console.log(content);
     } else {
-      console.log(response.status);
+      let content = await response.json();
+      console.log(content);
     }
   }
   if (profile) {
@@ -79,6 +108,7 @@ export default () => {
             <label for="file-upload" className="btn mt-3 button-primary">
               Upload a new photo
             </label>
+
             <input
               id="file-upload"
               type="file"
